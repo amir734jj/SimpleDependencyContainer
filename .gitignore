@@ -1,0 +1,7 @@
+.vs
+
+Container/bin
+Container/obj
+
+Container.Tests/bin
+Container.Tests/obj
