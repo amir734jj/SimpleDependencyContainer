@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="C:\Users\Amir-Acer\.nuget\packages\xunit.runner.visualstudio\2.3.1\build\netcoreapp1.0\xunit.runner.reporters.netcoreapp10.dll" t="Include" />
+    <e p="C:\Users\Amir-Acer\.nuget\packages\xunit.runner.visualstudio\2.3.1\build\netcoreapp1.0\xunit.runner.utility.netcoreapp10.dll" t="Include" />
+    <e p="C:\Users\Amir-Acer\.nuget\packages\xunit.runner.visualstudio\2.3.1\build\netcoreapp1.0\xunit.runner.visualstudio.dotnetcore.testadapter.dll" t="Include" />
+    <e p="C:\Users\Amir-Acer\.Rider2018.1\system\resharper-host\local\Transient\ReSharperHost\v12\SolutionCaches\_SimpleDependencyContainer.1990706586.00" t="ExcludeRecursive" />
+    <e p="C:\workspace\SimpleDependencyContainer" t="IncludeFlat">
+      <e p="container" t="IncludeRecursive">
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="Builders" t="Include">
+          <e p="BaseBuilder.cs" t="Include" />
+          <e p="DependencyBuilder.cs" t="Include" />
+        </e>
+        <e p="Container.cs" t="Include" />
+        <e p="container.csproj" t="IncludeRecursive" />
+        <e p="Extensions" t="Include">
+          <e p="LinqExtension.cs" t="Include" />
+        </e>
+        <e p="Interfaces" t="Include">
+          <e p="IDependency.cs" t="Include" />
+          <e p="IDependencyBuilder.cs" t="Include" />
+          <e p="ISimpleDependencyContainer.cs" t="Include" />
+        </e>
+        <e p="Models" t="Include">
+          <e p="Dependency.cs" t="Include" />
+        </e>
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="netcoreapp2.0" t="Include">
+              <e p="container.AssemblyInfo.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+      </e>
+      <e p="Container.Tests" t="IncludeRecursive">
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="Container.Tests.csproj" t="IncludeRecursive" />
+        <e p="ContainerTest.cs" t="Include" />
+        <e p="Models" t="Include">
+          <e p="FlatModel.cs" t="Include" />
+        </e>
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="netcoreapp2.0" t="Include">
+              <e p="Container.Tests.AssemblyInfo.cs" t="Include" />
+              <e p="Container.Tests.Program.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+      </e>
+      <e p="packages" t="ExcludeRecursive" />
+      <e p="SimpleDependencyContainer.sln" t="IncludeFlat" />
+    </e>
+  </component>
+</project>

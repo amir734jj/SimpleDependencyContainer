@@ -1,0 +1,8 @@
+C:\workspace\SimpleDependencyContainer\container\bin\Debug\netcoreapp2.0\container.deps.json
+C:\workspace\SimpleDependencyContainer\container\bin\Debug\netcoreapp2.0\container.dll
+C:\workspace\SimpleDependencyContainer\container\bin\Debug\netcoreapp2.0\container.pdb
+C:\workspace\SimpleDependencyContainer\container\obj\Debug\netcoreapp2.0\container.csproj.CoreCompileInputs.cache
+C:\workspace\SimpleDependencyContainer\container\obj\Debug\netcoreapp2.0\container.AssemblyInfoInputs.cache
+C:\workspace\SimpleDependencyContainer\container\obj\Debug\netcoreapp2.0\container.AssemblyInfo.cs
+C:\workspace\SimpleDependencyContainer\container\obj\Debug\netcoreapp2.0\container.dll
+C:\workspace\SimpleDependencyContainer\container\obj\Debug\netcoreapp2.0\container.pdb
