@@ -40,7 +40,7 @@ namespace container
         /// <returns></returns>
         public object Resolve(Type type)
         {
-            // Try to resolve a type
+            // Try to resolve a type if it is in type map (i.e. interface/class map)
             type = ResolveType(type);
             
             // Convert type to dependency
