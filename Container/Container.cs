@@ -40,6 +40,9 @@ namespace container
         /// <returns></returns>
         public object Resolve(Type type)
         {
+            // Try to resolve a type
+            type = ResolveType(type);
+            
             // Convert type to dependency
             var dependency = TypeToDependency(type);
             
