@@ -51,11 +51,17 @@ namespace container.Builders
         private DependencyStruct _dependencyStruct = new DependencyStruct();
 
         /// <summary>
-        /// Sets dependency type
+        /// Sets dependency type using dynamic type
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
         public IDependencyBuilder SetType(Type type) => Run(this, () => _dependencyStruct.Type = type);
+        
+        /// <summary>
+        /// Sets dependency type using static type
+        /// </summary>
+        /// <returns></returns>
+        public IDependencyBuilder SetType<T>() => Run(this, () => _dependencyStruct.Type = typeof(T));
         
         /// <summary>
         /// Sets dependency name

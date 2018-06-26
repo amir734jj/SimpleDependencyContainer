@@ -7,6 +7,8 @@ namespace container.Interfaces
     public interface IDependencyBuilder
     {
         IDependencyBuilder SetType(Type type);
+
+        IDependencyBuilder SetType<T>();
         
         IDependencyBuilder SetName(string name);
        
