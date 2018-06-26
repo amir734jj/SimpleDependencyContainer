@@ -75,7 +75,15 @@ namespace container
             else
             {
                 // Get arguments of constructor and try to resolve them
-                var args = dependency.Args ?? constructorInfo.GetParameters().Select(x => x.ParameterType).Select(ResolveType).Select(Resolve).ToArray();
+                var args = dependency.Args ?? constructorInfo.GetParameters()
+                               // Get types of constructor parameters
+                               .Select(x => x.ParameterType)
+                               // Resolve the type or convert interface to class because we cannot instantiate an interface
+                               .Select(ResolveType)
+                               // Recursively resolve the type
+                               .Select(Resolve)
+                               // Convert to object array
+                               .ToArray();
 
                 // Instantiate the type with resolved parameters
                 var instance = dependency.Type.Instantiate(args);
