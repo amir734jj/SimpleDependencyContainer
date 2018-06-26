@@ -10,16 +10,25 @@ namespace container.Builders
         /// <summary>
         /// Struct to hold builder info
         /// </summary>
-        private struct DependencyStruct: IDependency
+        private class DependencyStruct: IDependency
         {
             public Type Type { get; set;  }
             
             public string Name { get; set; }
            
             public object[] Args { get; set; }
-            
+
             public bool Singleton { get; set; }
 
+            public DependencyStruct()
+            {
+                Type = null;
+                Name = null;
+                Args = null;
+                // By default all dependencies are singleton
+                Singleton = true;
+            }
+            
             /// <summary>
             /// Constructor
             /// </summary>
@@ -27,7 +36,7 @@ namespace container.Builders
             /// <param name="name"></param>
             /// <param name="args"></param>
             /// <param name="singleton"></param>
-            public DependencyStruct(Type type, string name, object[] args, bool singleton)
+            public DependencyStruct(Type type, string name, object[] args, bool singleton): this()
             {
                 Type = type;
                 Name = name;
@@ -39,7 +48,7 @@ namespace container.Builders
         /// <summary>
         /// Initialize the struct to hold builder info
         /// </summary>
-        private DependencyStruct _dependencyStruct;
+        private DependencyStruct _dependencyStruct = new DependencyStruct();
 
         /// <summary>
         /// Sets dependency type

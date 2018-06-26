@@ -21,11 +21,18 @@ namespace container.Builders
         /// <param name="return"></param>
         /// <param name="action"></param>
         /// <returns></returns>
-        protected static TS Run<TS>(TS @return, params Action[] action)
+        protected static TS Run<TS>(TS @return, params Action[] action) => Run(() => @return, action);
+        /// <summary>
+        /// Execute the action and return
+        /// </summary>
+        /// <param name="return"></param>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        protected static TS Run<TS>(Func<TS> @return, params Action[] action)
         {
             action.ForEach(x => x());
             
-            return @return;
+            return @return();
         }
     }
 }

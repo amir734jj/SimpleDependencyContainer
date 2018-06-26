@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using container.Builders;
 using container.Models;
 
@@ -6,14 +7,26 @@ namespace container.Interfaces
 {
     public interface ISimpleDependencyContainer
     {
-        T GetInstance<T>();
+        T Resolve<T>();
 
-        object GetInstance(Type type);
+        object Resolve(Type type);
 
-        IDependency GetDependency(Func<IDependency, bool> filter);
+        IDependency QueryDependency(Func<IDependency, bool> filter);
         
-        ISimpleDependencyContainer Register(Func<IDependencyBuilder, IDependency> dependency);
+        ISimpleDependencyContainer RegisterDependency(Func<IDependencyBuilder, IDependency> dependency);
 
-        ISimpleDependencyContainer Remove<T>(IDependency dependency);
+        ISimpleDependencyContainer RemoveDependency<T>(IDependency dependency);
+
+        ISimpleDependencyContainer Scan(string assemblyName);
+
+        ISimpleDependencyContainer Scan(Assembly assembly);
+        
+        ISimpleDependencyContainer RegisterInstance<T>(T instance);
+        
+        ISimpleDependencyContainer RemoveInstance<T>(T instance);
+        
+        ISimpleDependencyContainer AddMap(Type source, Type destination);
+
+        ISimpleDependencyContainer RemoveMap(Type source);
     }
 }

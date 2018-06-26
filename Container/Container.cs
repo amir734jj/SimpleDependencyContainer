@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using container.Builders;
+using container.Extensions;
 using container.Interfaces;
 
 namespace container
@@ -16,6 +18,8 @@ namespace container
         private readonly Dictionary<IDependency, object> _instances;
         
         private readonly HashSet<IDependency> _container;
+
+        private readonly Dictionary<Type, Type> _maps;
         
         public SimpleDependencyContainer()
         {
@@ -24,58 +28,104 @@ namespace container
 
             // Initialize instance container
             _instances = new Dictionary<IDependency, object>();
+            
+            // Initialuze type map interface -> class
+            _maps = new Dictionary<Type, Type>();
         }
 
         /// <summary>
-        /// Returns an instance of dependency
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public T GetInstance<T>() => (T) GetInstance(typeof(T));
-
-        /// <summary>
-        /// Returns an instance of dependency
+        /// Resolves a dependency
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        /// <exception cref="ArgumentException"></exception>
-        public object GetInstance(Type type)
+        public object Resolve(Type type)
         {
-            var dependency = GetDependency(x => x.Type == type);
-
-            if (dependency == null)
-            {
-                throw new ArgumentException($"Dependency '{type.Name}' not found.");
-            }
-
+            // Convert type to dependency
+            var dependency = TypeToDependency(type);
+            
+            // Check if we already have the instance
             if (_instances.ContainsKey(dependency))
             {
                 return _instances[dependency];
             }
             
-            var instance = Activator.CreateInstance(dependency.Type, dependency.Args);
-
-            if (dependency.Singleton)
+            // We cannot instantiate system type undless explicitly registered
+            if (type.IsSystemType())
             {
-                _instances.Add(dependency, instance);
+                throw new ArgumentException($"Cannot instantiate system type: {type.Name}");
             }
+            
+            // Get constructor info
+            var constructorInfo = type.GetConstructors().FirstOrDefault(x => x.GetParameters().Any());
 
-            return instance;
+            // If constructor does not have any parameters then just instantiate the type
+            if (constructorInfo == null)
+            {
+                // Instantiate type
+                var instance = type.Instantiate();
+                
+                // Register instance of it is singleton
+                if (dependency.Singleton) _instances.Add(dependency, instance);
+
+                return instance;
+            }
+            else
+            {
+                // Get arguments of constructor and try to resolve them
+                var args = dependency.Args ?? constructorInfo.GetParameters().Select(x => x.ParameterType).Select(ResolveType).Select(Resolve).ToArray();
+
+                // Instantiate the type with resolved parameters
+                var instance = dependency.Type.Instantiate(args);
+
+                // Register instance if it is singleton
+                if (dependency.Singleton) _instances.Add(dependency, instance);
+
+                return instance;
+            }
         }
 
+        /// <summary>
+        /// Resolve the type
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T Resolve<T>() => (T) Resolve(typeof(T));
+
+        /// <summary>
+        /// Converts type to dependency
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        private IDependency TypeToDependency(Type type) => QueryDependency(x => x.Type == type) ?? Run(() => TypeToDependency(type), () => RegisterDependency(x => x.SetType(type).Compile()));
+
+        /// <summary>
+        /// Tries to resolve a type
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        private Type ResolveType(Type type) => _maps.ContainsKey(type) ? _maps[type] : type;
+        
         /// <summary>
         /// Returns dependency
         /// </summary>
         /// <param name="filter"></param>
         /// <returns></returns>
-        public IDependency GetDependency(Func<IDependency, bool> filter) => _container.FirstOrDefault(filter);
+        public IDependency QueryDependency(Func<IDependency, bool> filter) => _container.FirstOrDefault(filter);
 
         /// <summary>
         /// Registers a dependency
         /// </summary>
         /// <param name="dependency"></param>
         /// <returns></returns>
-        public ISimpleDependencyContainer Register(Func<IDependencyBuilder, IDependency> dependency) => Run(this, () => _container.Add(dependency(DependencyBuilder.New())));
+        public ISimpleDependencyContainer RegisterDependency(Func<IDependencyBuilder, IDependency> dependency) => Run(this, () => _container.Add(dependency(DependencyBuilder.New())));
+
+        /// <summary>
+        /// Removes a dependency
+        /// </summary>
+        /// <param name="dependency"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public ISimpleDependencyContainer RemoveDependency<T>(IDependency dependency) => Run(this, () => _container.Remove(dependency));
 
         /// <summary>
         /// Registers an instance
@@ -83,14 +133,46 @@ namespace container
         /// <param name="instance"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public ISimpleDependencyContainer RegisterInstance<T>(T instance) => Run(this, () => Register(_ => _.SetType(typeof(T)).SetSingleton(true).Compile()), () => _instances.Add(GetDependency(x => x.Type == typeof(T)), instance));
+        public ISimpleDependencyContainer RegisterInstance<T>(T instance) => Run(this, () => _instances.Add(TypeToDependency(typeof(T)), instance));
         
         /// <summary>
-        /// Removes a dependency
+        /// Removes an instance
         /// </summary>
-        /// <param name="dependency"></param>
+        /// <param name="instance"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public ISimpleDependencyContainer Remove<T>(IDependency dependency) => Run(this, () => _container.Remove(dependency));
+        public ISimpleDependencyContainer RemoveInstance<T>(T instance) => Run(this, () => _instances.Remove(TypeToDependency(typeof(T))));
+
+        /// <summary>
+        /// Scans assembly 
+        /// </summary>
+        /// <returns></returns>
+        public ISimpleDependencyContainer Scan(string assemblyName) => Scan(Assembly.Load(assemblyName));
+        
+        /// <summary>
+        /// Scans assembly 
+        /// </summary>
+        /// <returns></returns>
+        public ISimpleDependencyContainer Scan(Assembly assembly) => Run(this, () =>
+        {
+            var types = assembly.GetTypes();
+
+            types.Where(x => x.IsInterface).ToDictionary(x => x, x => types.Where(y => y.IsClass).FirstOrDefault(x.IsAssignableFrom)).ForEach(x => _maps.Add(x.Key, x.Value));
+        });
+
+        /// <summary>
+        /// Adds a type map
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="destination"></param>
+        /// <returns></returns>
+        public ISimpleDependencyContainer AddMap(Type source, Type destination) => Run(this, () => _maps.Add(source, destination));
+
+        /// <summary>
+        /// Tries to remove a type
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public ISimpleDependencyContainer RemoveMap(Type source) => Run(this, () => _maps.Remove(source));
     }
 }

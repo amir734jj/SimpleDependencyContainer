@@ -20,14 +20,13 @@ namespace Container.Tests
         {
             // Arrange
             var expected = _fixture.Create<FlatModelSource>();
-            var dependency = DependencyBuilder.New().SetType(typeof(FlatModelSource))
+            var container = SimpleDependencyContainer.New()
+                .RegisterDependency(x => x.SetType(typeof(FlatModelSource))
                 .SetArgs(new object[] { expected.Name, expected.Age, expected.DateOfBith })
-                .Compile();
-
-            var container = SimpleDependencyContainer.New().Register(_ => dependency);
+                .Compile());
 
             // Act
-            var flatModelSource = container.GetInstance<FlatModelSource>();
+            var flatModelSource = container.Resolve<FlatModelSource>();
 
             // Assert
             Assert.Equal(expected, flatModelSource);
@@ -38,19 +37,18 @@ namespace Container.Tests
         {
             // Arrange
             var expected = _fixture.Create<FlatModelSource>();
-            var dependency = DependencyBuilder.New().SetType(typeof(FlatModelSource))
+            var container = SimpleDependencyContainer.New()
+                .RegisterDependency(_ => _.SetType(typeof(FlatModelSource))
                 .SetArgs(new object[] { expected.Name, expected.Age, expected.DateOfBith })
                 .SetSingleton(true)
-                .Compile();
-
-            var container = SimpleDependencyContainer.New().Register(_ => dependency);
+                .Compile());
 
             // Act
-            var flatModelSource = container.GetInstance<FlatModelSource>();
+            var flatModelSource = container.Resolve<FlatModelSource>();
             flatModelSource.Name = "Test";
 
             // Assert
-            Assert.Equal("Test", container.GetInstance<FlatModelSource>().Name);
+            Assert.Equal("Test", container.Resolve<FlatModelSource>().Name);
         }
         
         [Fact]
@@ -61,7 +59,7 @@ namespace Container.Tests
             var container = SimpleDependencyContainer.New().RegisterInstance(expected);
 
             // Act
-            var flatModelSource = container.GetInstance<FlatModelSource>();
+            var flatModelSource = container.Resolve<FlatModelSource>();
 
             // Assert
             Assert.Equal(expected, flatModelSource);
