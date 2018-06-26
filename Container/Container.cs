@@ -135,6 +135,7 @@ namespace container
         /// <returns></returns>
         public ISimpleDependencyContainer RegisterInstance<T>(T instance) => Run(this, () => _instances.Add(TypeToDependency(typeof(T)), instance));
         
+        /// <inheritdoc />
         /// <summary>
         /// Removes an instance
         /// </summary>
@@ -149,6 +150,7 @@ namespace container
         /// <returns></returns>
         public ISimpleDependencyContainer Scan(string assemblyName) => Scan(Assembly.Load(assemblyName));
         
+        /// <inheritdoc />
         /// <summary>
         /// Scans assembly 
         /// </summary>
@@ -157,9 +159,16 @@ namespace container
         {
             var types = assembly.GetTypes();
 
-            types.Where(x => x.IsInterface).ToDictionary(x => x, x => types.Where(y => y.IsClass).FirstOrDefault(x.IsAssignableFrom)).ForEach(x => _maps.Add(x.Key, x.Value));
+            types.Where(x => x.IsInterface).ToDictionary(x => x, x => types.Where(y => y.IsClass)
+                // Get matching class type
+                .FirstOrDefault(x.IsAssignableFrom))
+                // Remove interfaces without concrete implementation
+                .Where(x => x.Value != null)
+                // Add the type map to dictionary
+                .ForEach(x => _maps.Add(x.Key, x.Value));
         });
 
+        /// <inheritdoc />
         /// <summary>
         /// Adds a type map
         /// </summary>
@@ -168,11 +177,27 @@ namespace container
         /// <returns></returns>
         public ISimpleDependencyContainer AddMap(Type source, Type destination) => Run(this, () => _maps.Add(source, destination));
 
+        /// <inheritdoc />
         /// <summary>
         /// Tries to remove a type
         /// </summary>
         /// <param name="source"></param>
         /// <returns></returns>
         public ISimpleDependencyContainer RemoveMap(Type source) => Run(this, () => _maps.Remove(source));
+
+        /// <summary>
+        /// Adds map given static types
+        /// </summary>
+        /// <typeparam name="TS"></typeparam>
+        /// <typeparam name="TD"></typeparam>
+        /// <returns></returns>
+        public ISimpleDependencyContainer AddMap<TS, TD>() => AddMap(typeof(TS), typeof(TD));
+
+        /// <summary>
+        /// Removes a map given static type
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public ISimpleDependencyContainer RemoveMap<T>() => RemoveMap(typeof(T));
     }
 }

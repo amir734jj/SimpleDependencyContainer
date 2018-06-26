@@ -64,5 +64,18 @@ namespace Container.Tests
             // Assert
             Assert.Equal(expected, flatModelSource);
         }
+
+        [Fact]
+        public void Test__TypeMap()
+        {
+            // Arrange
+            var container = SimpleDependencyContainer.New().AddMap<IDummyInterface, DummyClass>();
+            
+            // Act
+            var model = container.Resolve<ModelWithInterface>();
+            
+            // Assert
+            Assert.NotNull(model);
+        }
     }
 }
