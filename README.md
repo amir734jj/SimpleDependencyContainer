@@ -11,7 +11,7 @@
 2. `Lazy<T>` or `Func<T>` support as does `StructureMap`
 
 ### How does it work?
-This library will recursively resolve type and constructor with parameters until it reaches a type that is a System type or its namespace starts with `System`, then at this point it requires an instance to be manually registered before it can continue any further. This is the same strategy behind all IoCs.
+This library will recursively resolve type and constructor parameters until it reaches a type that is a System type or its namespace starts with `System`, then at this point it requires an instance to be manually registered before it can continue any further. This is the same strategy behind all IoCs.
 
 ### Examples:
 
