@@ -6,3 +6,12 @@ Container/obj/
 Container\.Tests/bin/
 
 Container\.Tests/obj/
+
+.vs
+.idea
+
+Container/bin
+Container/obj
+
+Container.Tests/bin
+Container.Tests/obj
