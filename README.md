@@ -16,7 +16,7 @@ Container interface:
 // Initialize the IoC container
 var container = SimpleDependencyContainer.New()
     // Register a dependency
-    .RegisterDependency(_ => _.SetType(typeof(FlatModelSource))
+    .RegisterDependency(_ => _.SetType<FlatModelSource>()
         // Set Args needed to be used to pass to it's constructor in order to initialize
         .SetArgs(new object[] {123, "Test"})
         // Dependency is Singleton hence initialize it once
