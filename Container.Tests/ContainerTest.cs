@@ -1,3 +1,4 @@
+using System;
 using AutoFixture;
 using container;
 using container.Builders;
@@ -76,6 +77,28 @@ namespace Container.Tests
             
             // Assert
             Assert.NotNull(model);
+        }
+
+        [Fact]
+        public void Test__CircularDependency()
+        {
+            // Arrange
+            var container = SimpleDependencyContainer.New().AddMap<ICircularDependency, CircularDependency>();
+
+            // Act
+
+            try
+            {
+                var circularDependency = container.Resolve<CircularDependency>();
+            }
+            catch (Exception e)
+            {
+                // Assert
+                Assert.True(e.Message.Equals("Circular Dependency Detected."));
+            }
+
+            
+
         }
     }
 }
