@@ -74,12 +74,24 @@ namespace container
             }
             else
             {
+                var resolvedTypes = new HashSet<Type>{ type };
                 // Get arguments of constructor and try to resolve them
                 var args = dependency.Args ?? constructorInfo.GetParameters()
                                // Get types of constructor parameters
                                .Select(x => x.ParameterType)
                                // Resolve the type or convert interface to class because we cannot instantiate an interface
                                .Select(ResolveType)
+                               // Check for circular dependencies
+                               .Select(x =>
+                               {
+                                   var alreadyResolved = resolvedTypes.Contains(x);
+
+                                   resolvedTypes.Add(x);
+                                   
+                                   return !alreadyResolved
+                                           ? x
+                                           : throw new ArgumentException("Circular Dependency Detected.");
+                               })
                                // Recursively resolve the type
                                .Select(Resolve)
                                // Convert to object array
