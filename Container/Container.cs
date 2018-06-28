@@ -42,16 +42,26 @@ namespace container
         /// <returns></returns>
         private object LazyResolve(Type genericType)
         {            
+            // Create expression body
             var body = Expression.Call(
+                // Instance
                 Expression.Constant(this),
+                // MethodInfo
                 typeof(SimpleDependencyContainer).GetMethod("Resolve", new[] { typeof(Type) }),
+                // Argument IN of method call
                 Expression.Constant(genericType)
             );
 
+            // Cast Object to intended type
             var fullBody = Expression.Convert(body, genericType);
-            Expression.Parameter(genericType);
+            
+            // Create generic Func
             var delegateType = typeof(Func<>).MakeGenericType(genericType);
+            
+            // Create lambda expression that does not take any arguments IN given type and body
             var lambda = Expression.Lambda(delegateType, fullBody);
+            
+            // Convert lambda to Func
             return lambda.Compile();
         }
 
