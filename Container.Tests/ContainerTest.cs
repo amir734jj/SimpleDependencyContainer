@@ -86,19 +86,10 @@ namespace Container.Tests
             var container = SimpleDependencyContainer.New().AddMap<ICircularDependency, CircularDependency>();
 
             // Act
+            var exception = Record.Exception(() => container.Resolve<CircularDependency>());
 
-            try
-            {
-                var circularDependency = container.Resolve<CircularDependency>();
-            }
-            catch (Exception e)
-            {
-                // Assert
-                Assert.True(e.Message.Equals("Circular Dependency Detected."));
-            }
-
-            
-
+            // Assert
+            Assert.IsType<ArgumentException>(exception);
         }
     }
 }
