@@ -7,7 +7,7 @@
 4. Assembly scanning
 
 ### It does not (yet ...):
-1. ~~Resolve recursive dependencies~~ (*feature added*)
+1. ~~Resolve recursive dependencies~~ (*added feature to detect them, TODO: to resolve recursive dependencies*)
 2. `Lazy<T>` or `Func<T>` support as does `StructureMap`
 
 ### How does it work?
