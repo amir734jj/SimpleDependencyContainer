@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using container.Builders;
 using container.Extensions;
@@ -31,6 +33,26 @@ namespace container
             
             // Initialuze type map interface -> class
             _maps = new Dictionary<Type, Type>();
+        }
+
+        /// <summary>
+        /// Lazy resolves a type, returns a Func that when invoked will return the intended object
+        /// </summary>
+        /// <param name="genericType"></param>
+        /// <returns></returns>
+        private object LazyResolve(Type genericType)
+        {            
+            var body = Expression.Call(
+                Expression.Constant(this),
+                typeof(SimpleDependencyContainer).GetMethod("Resolve", new[] { typeof(Type) }),
+                Expression.Constant(genericType)
+            );
+
+            var fullBody = Expression.Convert(body, genericType);
+            Expression.Parameter(genericType);
+            var delegateType = typeof(Func<>).MakeGenericType(genericType);
+            var lambda = Expression.Lambda(delegateType, fullBody);
+            return lambda.Compile();
         }
 
         /// <summary>
@@ -65,11 +87,31 @@ namespace container
                 return _instances[dependency];
             }
             
+            // Test whethe type is generic
+            if (type.IsGenericType && type.GetGenericArguments().Length == 1)
+            {
+                // try to get the generic parameter of type
+                var genericType = type.GetGenericArguments().First();
+
+                // if type is a Func then user is probably trying to resolve circular dependency
+                if (type.GetGenericTypeDefinition() == typeof(Func<>))
+                {
+                    return LazyResolve(genericType);
+                }
+
+                // if type is a Lazy, then it is a similar situation
+                if (type.GetGenericTypeDefinition() == typeof(Lazy<>))
+                {
+                    return typeof(Lazy<>).InstantiateGeneric(genericType, LazyResolve(genericType));
+                }
+            }        
+            
             // We cannot instantiate system type undless explicitly registered
             if (type.IsSystemType())
             {
                 throw new ArgumentException($"Cannot instantiate system type: {type.Name}");
             }
+
             
             // Get constructor info
             var constructorInfo = type.GetConstructors().FirstOrDefault(x => x.GetParameters().Any());

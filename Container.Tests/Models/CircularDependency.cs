@@ -1,6 +1,5 @@
 ﻿namespace Container.Tests.Models
 {
-
     public interface ICircularDependency
     {
         

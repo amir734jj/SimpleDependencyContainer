@@ -91,5 +91,22 @@ namespace Container.Tests
             // Assert
             Assert.IsType<ArgumentException>(exception);
         }
+
+        [Fact]
+        public void Test__ResolvableCircularDependency()
+        {
+            // Arrange
+            var container = SimpleDependencyContainer.New();
+            
+            // Act
+            var simple = container.Resolve<ResolvableCircularDependency>();
+            var lazy = container.Resolve<ResolvableCircularDependencyLazy>();
+            var func = container.Resolve<ResolvableCircularDependencyFunc>();
+            
+            // Assert
+            Assert.NotNull(simple);
+            Assert.NotNull(func.ResolvableCircularDependency());
+            Assert.NotNull(lazy.ResolvableCircularDependency.Value);
+        }
     }
 }
