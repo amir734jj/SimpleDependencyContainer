@@ -39,10 +39,10 @@ namespace container
         /// <param name="type"></param>
         /// <param name="alreadyResolvedList"></param>
         /// <returns></returns>
-        private object Resolve(Type type, List<Type> alreadyResolvedList)
+        private object Resolve(Type type, HashSet<Type> alreadyResolvedList)
         {
             // Initialize already resolved list
-            alreadyResolvedList = alreadyResolvedList ?? new List<Type>();
+            alreadyResolvedList = alreadyResolvedList ?? new HashSet<Type>();
 
             // Check for circular dependency
             if (alreadyResolvedList.Contains(type))
