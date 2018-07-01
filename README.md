@@ -5,10 +5,12 @@
 2. Conventional dependency resolving using both interfaces or concrete classes
 3. Constructor dependency injection
 4. Assembly scanning
+5. Resolve recursive dependencies
+6. `Lazy<T>` or `Func<T>` support as does `StructureMap`
 
 ### It does not (yet ...):
-1. ~~Resolve recursive dependencies~~ (*added feature to detect them, TODO: to resolve recursive dependencies*)
-2. `Lazy<T>` or `Func<T>` support as does `StructureMap`
+1. ~~Resolve recursive dependencies~~ (*added feature*)
+2. ~~`Lazy<T>` or `Func<T>` support as does `StructureMap`~~ (*added feature*)
 
 ### How does it work?
 This library will recursively resolve type and constructor parameters until it reaches a type that is a System type or its namespace starts with `System`, then at this point it requires an instance to be manually registered before it can continue any further. This is the same strategy behind all IoCs.
