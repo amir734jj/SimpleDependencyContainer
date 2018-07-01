@@ -37,9 +37,22 @@ namespace container
         /// Resolves a dependency
         /// </summary>
         /// <param name="type"></param>
+        /// <param name="alreadyResolvedList"></param>
         /// <returns></returns>
-        public object Resolve(Type type)
+        private object Resolve(Type type, HashSet<Type> alreadyResolvedList)
         {
+            // Initialize already resolved list
+            alreadyResolvedList = alreadyResolvedList ?? new HashSet<Type>();
+
+            // Check for circular dependency
+            if (alreadyResolvedList.Contains(type))
+            {
+                throw new ArgumentException("Circular Dependency Detected.");
+            }
+
+            // Add current type to resolved dependencies
+            alreadyResolvedList.Add(type);
+
             // Try to resolve a type if it is in type map (i.e. interface/class map)
             type = ResolveType(type);
             
@@ -74,26 +87,14 @@ namespace container
             }
             else
             {
-                var resolvedTypes = new HashSet<Type>{ type };
                 // Get arguments of constructor and try to resolve them
                 var args = dependency.Args ?? constructorInfo.GetParameters()
                                // Get types of constructor parameters
                                .Select(x => x.ParameterType)
                                // Resolve the type or convert interface to class because we cannot instantiate an interface
                                .Select(ResolveType)
-                               // Check for circular dependencies
-                               .Select(x =>
-                               {
-                                   var alreadyResolved = resolvedTypes.Contains(x);
-
-                                   resolvedTypes.Add(x);
-                                   
-                                   return !alreadyResolved
-                                           ? x
-                                           : throw new ArgumentException("Circular Dependency Detected.");
-                               })
                                // Recursively resolve the type
-                               .Select(Resolve)
+                               .Select(x => Resolve(x, alreadyResolvedList))
                                // Convert to object array
                                .ToArray();
 
@@ -103,6 +104,7 @@ namespace container
                 // Register instance if it is singleton
                 if (dependency.Singleton) _instances.Add(dependency, instance);
 
+                // Return the instance
                 return instance;
             }
         }
@@ -113,6 +115,13 @@ namespace container
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         public T Resolve<T>() => (T) Resolve(typeof(T));
+
+        /// <summary>
+        /// Resolves a dependency
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public object Resolve(Type type) => Resolve(type, null);
 
         /// <summary>
         /// Converts type to dependency
